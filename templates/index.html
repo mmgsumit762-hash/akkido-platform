@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akkido Platform - Vedic Financial Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🔮 Akkido Platform</h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="#engines">Engines</a></li>
+                <li><a href="#about">About</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container">
+            <h2>Vedic Financial Analysis Platform</h2>
+            <p>Harness the ancient wisdom of Vedic astrology for modern financial backtesting</p>
+            <a href="#engines" class="cta-button">Explore Engines</a>
+        </div>
+    </header>
+
+    <section id="engines" class="engines-section">
+        <div class="container">
+            <h2 class="section-title">Financial Analysis Engines</h2>
+            
+            <div class="engines-grid">
+                <!-- FinAstro Engine -->
+                <div class="engine-card active">
+                    <div class="engine-icon">⭐</div>
+                    <h3>FinAstro Engine</h3>
+                    <p>Panchang-based stock price backtesting using Sun and Moon positions for trading analysis.</p>
+                    <ul class="features">
+                        <li>✓ Tithi (Lunar Day) Analysis</li>
+                        <li>✓ Nakshatra (Lunar Mansion) Filter</li>
+                        <li>✓ Yoga & Karana Calculations</li>
+                        <li>✓ Open-to-Close Return Analysis</li>
+                        <li>✓ Win Rate & Performance Stats</li>
+                    </ul>
+                    <a href="/finastro" class="engine-button">Launch FinAstro →</a>
+                </div>
+
+                <!-- Vedic Engine -->
+                <div class="engine-card disabled">
+                    <div class="engine-icon">🌙</div>
+                    <h3>Vedic Engine</h3>
+                    <p>Advanced Vedic astrological calculations including birth chart analysis and predictions.</p>
+                    <ul class="features">
+                        <li>◐ Birth Chart Generation</li>
+                        <li>◐ Dasha Period Calculations</li>
+                        <li>◐ Transit Analysis</li>
+                        <li>◐ Compatibility Matching</li>
+                        <li>◐ Planetary Strength Analysis</li>
+                    </ul>
+                    <button class="engine-button disabled-btn" disabled>Coming Soon</button>
+                </div>
+
+                <!-- Numerology Engine -->
+                <div class="engine-card disabled">
+                    <div class="engine-icon">🔢</div>
+                    <h3>Numerology Engine</h3>
+                    <p>Numerological analysis for personal insights and decision-making guidance.</p>
+                    <ul class="features">
+                        <li>◐ Life Path Number Analysis</li>
+                        <li>◐ Destiny Number Calculation</li>
+                        <li>◐ Name Numerology</li>
+                        <li>◐ Lucky Number Generation</li>
+                        <li>◐ Daily Numerology Forecast</li>
+                    </ul>
+                    <button class="engine-button disabled-btn" disabled>Coming Soon</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="about-section">
+        <div class="container">
+            <h2 class="section-title">About Akkido Platform</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>
+                        Akkido Platform integrates ancient Vedic wisdom with modern financial analysis.
+                        The FinAstro Engine uses Panchang calculations (Tithi, Nakshatra, Yoga, Karana) 
+                        to analyze historical stock price data and identify patterns based on lunar and solar positions.
+                    </p>
+                    <p>
+                        Our backtesting engine downloads real historical OHLC data from Yahoo Finance 
+                        and calculates Panchang values using Swiss Ephemeris for astronomical accuracy.
+                        Users can filter trading days by various Vedic factors to analyze performance patterns.
+                    </p>
+                    <h4>Key Features:</h4>
+                    <ul>
+                        <li>Real-time stock data via Yahoo Finance</li>
+                        <li>Accurate Panchang calculations using Swiss Ephemeris</li>
+                        <li>Customizable filtering by Vedic parameters</li>
+                        <li>Comprehensive backtesting statistics</li>
+                        <li>Responsive dark-mode UI</li>
+                        <li>PythonAnywhere deployment ready</li>
+                    </ul>
+                </div>
+                <div class="about-stats">
+                    <div class="stat-box">
+                        <div class="stat-number">27</div>
+                        <div class="stat-label">Nakshatras</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">30</div>
+                        <div class="stat-label">Tithis</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">27</div>
+                        <div class="stat-label">Yogas</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">60</div>
+                        <div class="stat-label">Karanas</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Akkido Platform. Vedic Financial Analysis Engine.</p>
+            <p>Disclaimer: This platform is for educational and analytical purposes only. Not financial advice.</p>
+        </div>
+    </footer>
+</body>
+</html>

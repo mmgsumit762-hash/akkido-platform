@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinAstro Engine - Akkido Platform</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🔮 Akkido Platform</h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/finastro">FinAstro</a></li>
+                <li><a href="/">About</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="finastro-container">
+        <section class="form-section">
+            <div class="container">
+                <h2 class="section-title">FinAstro Engine - Panchang Backtesting</h2>
+                
+                <form id="backtestForm" class="backtest-form">
+                    <div class="form-group">
+                        <label for="ticker">Stock Ticker Symbol</label>
+                        <input type="text" id="ticker" name="ticker" placeholder="e.g., AAPL, MSFT, GOOGL" required maxlength="10">
+                        <small>Enter the stock symbol to analyze</small>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="startDate">Start Date</label>
+                            <input type="date" id="startDate" name="startDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate">End Date</label>
+                            <input type="date" id="endDate" name="endDate" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="filterType">Filter Type</label>
+                            <select id="filterType" name="filterType" required>
+                                <option value="All">All Days (No Filter)</option>
+                                <option value="Weekday">Weekday</option>
+                                <option value="Tithi">Tithi (Lunar Day)</option>
+                                <option value="Nakshatra">Nakshatra (Lunar Mansion)</option>
+                                <option value="Yoga">Yoga</option>
+                                <option value="Karana">Karana</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filterValue">Filter Value</label>
+                            <select id="filterValue" name="filterValue">
+                                <option value="">Select filter value</option>
+                            </select>
+                            <small id="filterHint"></small>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        <span>Run Backtest</span>
+                    </button>
+                    <div id="loadingSpinner" class="loading-spinner" style="display: none;"></div>
+                </form>
+
+                <div id="errorAlert" class="alert alert-error" style="display: none;"></div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="resultsSection" class="results-section" style="display: none;">
+            <div class="container">
+                <!-- Summary Stats -->
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Trades</div>
+                        <div class="stat-value" id="statTrades">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Win Rate</div>
+                        <div class="stat-value" id="statWinRate">0%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Avg Return</div>
+                        <div class="stat-value" id="statAvgReturn">0%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Return</div>
+                        <div class="stat-value" id="statTotalReturn">0%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Best Trade</div>
+                        <div class="stat-value good" id="statBestTrade">0%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Worst Trade</div>
+                        <div class="stat-value bad" id="statWorstTrade">0%</div>
+                    </div>
+                </div>
+
+                <!-- Results Table -->
+                <div class="table-wrapper">
+                    <table id="resultsTable" class="results-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Weekday</th>
+                                <th>Tithi</th>
+                                <th>Nakshatra</th>
+                                <th>Yoga</th>
+                                <th>Karana</th>
+                                <th>Open</th>
+                                <th>Close</th>
+                                <th>Return %</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsTableBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <button id="exportBtn" class="export-btn">📥 Export Results as CSV</button>
+            </div>
+        </section>
+
+        <!-- Empty State -->
+        <section id="emptyState" class="empty-state">
+            <div class="container">
+                <p>Select parameters and click "Run Backtest" to analyze stock performance based on Panchang values.</p>
+            </div>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Akkido Platform. Vedic Financial Analysis Engine.</p>
+            <p>Disclaimer: This platform is for educational and analytical purposes only. Not financial advice.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Set default dates (last 1 year)
+        const today = new Date();
+        const oneYearAgo = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+        
+        document.getElementById('endDate').valueAsDate = today;
+        document.getElementById('startDate').valueAsDate = oneYearAgo;
+
+        // Update filter options when filter type changes
+        document.getElementById('filterType').addEventListener('change', async (e) => {
+            const filterType = e.target.value;
+            const filterValueSelect = document.getElementById('filterValue');
+            const filterHint = document.getElementById('filterHint');
+            
+            filterValueSelect.innerHTML = '<option value="">Select filter value</option>';
+            
+            if (filterType === 'All') {
+                filterValueSelect.disabled = true;
+                filterHint.textContent = '';
+                return;
+            }
+            
+            filterValueSelect.disabled = false;
+            
+            try {
+                const response = await fetch(`/api/filter-options/${filterType}`);
+                const options = await response.json();
+                
+                const hints = {
+                    'Weekday': 'Filter by day of the week (1=Mon, 7=Sun)',
+                    'Tithi': 'Lunar day. 30 tithis in a lunar month',
+                    'Nakshatra': '27 lunar mansions, each ~13.33 degrees',
+                    'Yoga': '27 auspicious/inauspicious combinations',
+                    'Karana': '60 half-tithis for specific actions'
+                };
+                
+                filterHint.textContent = hints[filterType] || '';
+                
+                options.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt;
+                    option.textContent = opt;
+                    filterValueSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading filter options:', error);
+            }
+        });
+
+        // Form submission
+        document.getElementById('backtestForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const ticker = document.getElementById('ticker').value.toUpperCase();
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const filterType = document.getElementById('filterType').value;
+            const filterValue = document.getElementById('filterValue').value;
+            
+            const errorAlert = document.getElementById('errorAlert');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            errorAlert.style.display = 'none';
+            loadingSpinner.style.display = 'inline-block';
+            submitBtn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/backtest', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ticker,
+                        start_date: startDate,
+                        end_date: endDate,
+                        filter_type: filterType,
+                        filter_value: filterValue
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    errorAlert.textContent = `Error: ${data.error}`;
+                    errorAlert.style.display = 'block';
+                    document.getElementById('resultsSection').style.display = 'none';
+                } else {
+                    displayResults(data);
+                }
+            } catch (error) {
+                errorAlert.textContent = `Error: ${error.message}`;
+                errorAlert.style.display = 'block';
+                document.getElementById('resultsSection').style.display = 'none';
+            } finally {
+                loadingSpinner.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Display results
+        function displayResults(data) {
+            const stats = data.stats;
+            const results = data.results;
+            
+            document.getElementById('statTrades').textContent = stats.trades;
+            document.getElementById('statWinRate').textContent = stats.win_rate.toFixed(2) + '%';
+            document.getElementById('statAvgReturn').textContent = stats.avg_return.toFixed(2) + '%';
+            document.getElementById('statTotalReturn').textContent = stats.total_return.toFixed(2) + '%';
+            document.getElementById('statBestTrade').textContent = stats.best_trade.toFixed(2) + '%';
+            document.getElementById('statWorstTrade').textContent = stats.worst_trade.toFixed(2) + '%';
+            
+            const tbody = document.getElementById('resultsTableBody');
+            tbody.innerHTML = '';
+            
+            results.forEach(row => {
+                const tr = document.createElement('tr');
+                const returnClass = row.return_pct > 0 ? 'positive' : row.return_pct < 0 ? 'negative' : '';
+                
+                tr.innerHTML = `
+                    <td>${row.date}</td>
+                    <td>${row.weekday}</td>
+                    <td>${row.tithi}</td>
+                    <td>${row.nakshatra}</td>
+                    <td>${row.yoga}</td>
+                    <td>${row.karana}</td>
+                    <td>$${row.open.toFixed(2)}</td>
+                    <td>$${row.close.toFixed(2)}</td>
+                    <td class="return-cell ${returnClass}">${row.return_pct.toFixed(2)}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('emptyState').style.display = 'none';
+            
+            // Setup export button
+            document.getElementById('exportBtn').onclick = () => exportToCSV(data);
+        }
+
+        // Export to CSV
+        function exportToCSV(data) {
+            const results = data.results;
+            const stats = data.stats;
+            
+            let csv = 'Akkido FinAstro Backtest Results\n';
+            csv += `Ticker: ${data.ticker}\n`;
+            csv += `Filter: ${data.filter_type} = ${data.filter_value || 'All'}\n\n`;
+            csv += `Summary Statistics\n`;
+            csv += `Trades,Win Rate,Avg Return,Total Return,Best Trade,Worst Trade\n`;
+            csv += `${stats.trades},${stats.win_rate}%,${stats.avg_return}%,${stats.total_return}%,${stats.best_trade}%,${stats.worst_trade}%\n\n`;
+            csv += `Trade Details\n`;
+            csv += `Date,Weekday,Tithi,Nakshatra,Yoga,Karana,Open,Close,Return %\n`;
+            
+            results.forEach(row => {
+                csv += `${row.date},${row.weekday},${row.tithi},${row.nakshatra},${row.yoga},${row.karana},${row.open.toFixed(2)},${row.close.toFixed(2)},${row.return_pct.toFixed(2)}\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `finastro-${data.ticker}-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+    </script>
+</body>
+</html>
